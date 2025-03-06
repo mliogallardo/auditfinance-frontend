@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './login.css'; // Crearemos este archivo después
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -7,40 +9,31 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí puedes agregar la lógica para manejar el login
-    console.log('Email:', email);
-    console.log('Password:', password);
-
-    const rawData = {
-      email: email, // email es el valor del estado
-      password: password, // password es el valor del estado
-    };
-    e.preventDefault();
-    try {
-      const response = await fetch('localhost:8081/api/v1/auth/signin', {
-        method: 'POST',
+    axios.post('http://localhost:8081/api/v1/auth/signin', {
+        username: email, // Cambia "email" por "username"
+        password,
+    }, {
         headers: {
-          'Content-Type': 'application/json', // Indica que el cuerpo es JSON
+            'Content-Type': 'application/json', // Indica que el cuerpo es JSON
         },
-        body: JSON.stringify(rawData), // Convierte el objeto a una cadena JSON
-      });
-      if (!response.ok) {
-        throw new Error('Error en la solicitud');
-      }
-  
-      const data = await response.json(); // Parsea la respuesta JSON
-      console.log('Respuesta del servidor:', data);
-
-      /*const data = await response.json();
-      if (response.ok) {
-        console.log('Login exitoso:', data);
-        // Redirige al usuario o guarda el token de autenticación
-      } else {
-        console.error('Error en el login:', data.message);
-      }*/
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    })
+    .then(response => {
+        console.log('Login exitoso:', response.data);
+        toast.success('Login exitoso'); // Notificación de éxito
+        // Aquí puedes manejar el login exitoso
+    })
+    .catch(error => {
+      if (error.response) {
+          // El servidor respondió con un código de estado fuera del rango 2xx
+          toast.error(error.response.data.error || 'Error en el login');
+      } else if (error.request) {
+          // La solicitud fue hecha pero no se recibió respuesta
+          toast.error('No se recibió respuesta del servidor');
+        } else {
+          // Algo salió mal al hacer la solicitud
+          toast.error('Error al hacer la solicitud: ' + error.message);
+        }
+    });
   };
 
   return (
