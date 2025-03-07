@@ -26,6 +26,11 @@ function App() {
   };
 
   return (
+    
+    <div>
+      <div>
+      <ToastContainer /> 
+      </div>
     <Router>
       <Routes>
         <Route
@@ -51,6 +56,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
+    </div>
   );
 }
 

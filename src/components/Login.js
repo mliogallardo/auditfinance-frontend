@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Login.css'; // Crearemos este archivo después
 import { login } from '../services/api';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../utils/errorUtils'; 
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -27,27 +28,19 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login({ onLogin, email, password })
-        .then((response) => {
-          if (response.success) {
-            console.log("response.success")
-            onLogin(true)
-          } else {
-            console.log(`Error a: ${response.error}`)
-            toast.error(`Error a: ${response.error}`)
-
-          }
-        }).catch(error => {
-          console.log(`Error a: ${error}`)
-          toast.error(`Error a: ${error}`)
-
-      });
-
+        const response = await login({ onLogin, email, password });
+        if (response.success) {
+            console.log("Login exitoso:", response);
+            onLogin(true); // Notifica que el login fue exitoso
+        } else {
+          const errorMessage = getErrorMessage(response.error);
+          toast.error(`Error en el login: ${errorMessage}`);
+        }
     } catch (error) {
-      console.log(`Error b: ${error}`)
-      toast.error(`Error b: ${error}`)
+      const errorMessage = getErrorMessage(error);
+      toast.error(`Error inesperado: ${errorMessage}`);
     }
-  };
+};
 
   return (
     <div className="login-container">
