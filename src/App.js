@@ -5,7 +5,21 @@ import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Home from './components/Home';
-import { logout } from './services/api';
+import { logout } from './api'; // Importa desde el archivo index.js
+
+// Carga las variables de entorno según el modo
+/*
+npm start: Ejecuta la aplicación en modo desarrollo (usa .env.development).
+npm run start:staging: Ejecuta la aplicación en modo staging (usa .env.staging).
+npm run build: Crea un build para producción (usa .env.production).
+npm run build:staging: Crea un build para staging (usa .env.staging).
+*/
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+const APP_MODE = process.env.REACT_APP_MODE;
+
+console.log(`API Base URL: ${API_BASE_URL}`);
+console.log(`App Mode: ${APP_MODE}`);
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);

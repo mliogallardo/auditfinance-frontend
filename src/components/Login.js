@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Login.css'; // Crearemos este archivo después
-import { login } from '../services/api';
+import { login } from '../api'; // Importa desde el archivo index.js
 import { toast } from 'react-toastify';
 import { getErrorMessage } from '../utils/errorUtils'; 
 
@@ -11,19 +11,8 @@ function Login({ onLogin }) {
   /*ToDo Interceptores y configuración global: Si usas axios, puedes configurar interceptores 
   y configuraciones globales (como headers comunes) en un archivo de configuración separado.*/
 
-  /*ToDo Organización: Si tu aplicación es grande, podrías dividir las llamadas a la API en 
-  múltiples archivos según el contexto (por ejemplo, userApi.js, productApi.js, etc.) 
-  y luego importarlos en un archivo index.js para exportarlos todos juntos.*/
 
-  // Uso de axios para hacer una solicitud protegida
-  /*const getProtectedData = async () => {
-    try {
-        const response = await axios.get('http://localhost:8081/equipos/getAll');
-        console.log('Datos protegidos:', response.data);
-    } catch (error) {
-        console.error('Error al obtener datos protegidos:', error.message);
-    }
-  };*/
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
