@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import './login.css'; // Crearemos este archivo después
+import './Login.css'; // Crearemos este archivo después
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const Login = () => {
+function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -19,8 +19,26 @@ const Login = () => {
     })
     .then(response => {
         console.log('Login exitoso:', response.data);
-        toast.success('Login exitoso'); // Notificación de éxito
-        // Aquí puedes manejar el login exitoso
+        const token = response.data.accessToken; 
+        // Almacena el token en localStorage
+        localStorage.setItem('authToken', token);
+
+        // Configura axios para incluir el token en todas las solicitudes
+        axios.interceptors.request.use((config) => {
+          const token = localStorage.getItem('authToken');
+          if (token) {
+              config.headers['Authorization'] = `Bearer ${token}`;
+              onLogin(true);
+              toast.success('Iniciando sesión');
+          }else{
+            toast.error('No se ha podido guardar el token de sesión');//no deberíamos llegar aquí
+
+          }
+          return config;
+        }, (error) => {
+          return Promise.reject(error);
+        });
+ // Notificación de éxito
     })
     .catch(error => {
       if (error.response) {
@@ -35,6 +53,16 @@ const Login = () => {
         }
     });
   };
+
+  // Uso de axios para hacer una solicitud protegida
+const getProtectedData = async () => {
+  try {
+      const response = await axios.get('http://localhost:8081/equipos/getAll');
+      console.log('Datos protegidos:', response.data);
+  } catch (error) {
+      console.error('Error al obtener datos protegidos:', error.message);
+  }
+};
 
   return (
     <div className="login-container">
@@ -60,6 +88,9 @@ const Login = () => {
         </div>
         <button type="submit">Ingresar</button>
       </form>
+      {
+        //<span onClick={getProtectedData}>"Hola"</span>
+      }
     </div>
   );
 };
