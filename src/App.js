@@ -3,8 +3,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 //import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Home from './components/Home';
+import Login from './pages/Login';
+import HomePage from './pages/HomePage';
 import { logout } from './api'; // Importa desde el archivo index.js
 
 // Carga las variables de entorno según el modo
@@ -61,7 +61,8 @@ function App() {
           path="/home"
           element={
             isAuthenticated ? (
-              <Home onLogout={handleLogout} />
+              //<HomePage onLogout={handleLogout} />
+              <HomePage />
             ) : (
               <Navigate to="/login" />
             )

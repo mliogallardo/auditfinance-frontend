@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+//import React, { useEffect, useState } from 'react';
 //import { getUsers } from '../services/api';
 
 function Home({ onLogout }) {
-  const [users, setUsers] = useState([]);
+  //const [users, setUsers] = useState([]);
 
   /*useEffect(() => {
     const fetchUsers = async () => {
