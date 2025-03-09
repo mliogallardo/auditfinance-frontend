@@ -5,6 +5,7 @@ let requestInterceptor;
 
 
 export const login = async ({ onLogin, email, password }) => {
+  logout()
   try {
     const response = await axios.post(`api/v1/auth/signin`, {
       username: email, // Cambia "email" por "username"

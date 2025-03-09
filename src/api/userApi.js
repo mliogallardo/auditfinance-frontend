@@ -5,7 +5,7 @@ import axios from './axiosConfig'; // Importa la instancia configurada de Axios
 // Uso de axios para hacer una solicitud protegida
 export const getUserFriendList = async () => {
   try {
-    const response = await axios.get(`friends/getUserFriendList`);
+    const response = await axios.post(`friends/getUserFriendList`);
     return { success: true, data: response.data };
   } catch (error) {
     return { success: false, error };
