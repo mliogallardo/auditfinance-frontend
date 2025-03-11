@@ -10,14 +10,13 @@ import {
   ListItemText,
   CircularProgress,
   TextField,
-  Button,
   Box,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SendIcon from '@mui/icons-material/Send'; // Importa el ícono de avión de papel
 import { toast } from 'react-toastify';
-import { getUserFriendList } from '../api'; // Importa desde el archivo index.js
+import { getUserFriendList, getPrivateChat } from '../api'; // Importa desde el archivo index.js
 import { getErrorMessage } from '../utils/errorUtils';
 
 const Chat = () => {
@@ -25,7 +24,7 @@ const Chat = () => {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [messagesChat, setMessagesChat] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null); // Referencia al final del contenedor de mensajes
 
@@ -44,13 +43,27 @@ const Chat = () => {
     fetchFriends();
   }, []);
 
+  useEffect(() => {
+    const fetchChat = async (usuarioInterlocutor) => {
+      setLoading(true);
+      const result = await getPrivateChat(usuarioInterlocutor);
+      if (result.success) {
+        setMessagesChat(result.data);
+      } else {
+        const errorMessage = getErrorMessage(result.error);
+        toast.error(`Error cargando conversación: ${errorMessage}`);
+      }
+      setLoading(false);
+    };
+
+    if (selectedUser!==null && selectedUser !== undefined){
+      fetchChat(selectedUser);
+    }
+  }, [selectedUser]); // Se ejecuta cada vez que cambia el selectedUser
+
   const handleUserClick = (user) => {
     setSelectedUser(user);
     setExpanded(true);
-    setMessages([
-      { id: 1, sender: user, text: 'Hola, ¿cómo estás?' },
-      { id: 2, text: '¡Hola! Estoy bien, ¿y tú?' },
-    ]);
   };
 
   // Efecto para desplazar el contenedor hacia abajo cuando se añade un mensaje
@@ -58,21 +71,21 @@ const Chat = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
     }
-  }, [messages]); // Se ejecuta cada vez que `messages` cambia
+  }, [messagesChat]); // Se ejecuta cada vez que `messages` cambia
 
   //desplazamiento suave
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messagesChat]);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       const message = {
         text: newMessage,
       };
-      setMessages([...messages, message]);
+      setMessagesChat([...messagesChat, message]);
       setNewMessage('');
     }
   };
@@ -178,12 +191,12 @@ const Chat = () => {
               }}
               ref={messagesEndRef} // Referencia para el desplazamiento
             >
-              {messages.map((message) => (
+              {messagesChat.map((lineaChat) => (
                 <Box
-                  key={message.id}
+                  key={lineaChat.id}
                   sx={{
                     display: 'flex',
-                    justifyContent: message.sender === undefined ? 'flex-end' : 'flex-start',
+                    justifyContent: lineaChat.emisor === undefined ? 'flex-end' : 'flex-start',
                     marginBottom: '8px',
                     width: '100%',
                   }}
@@ -192,13 +205,13 @@ const Chat = () => {
                     sx={{
                       padding: '8px',
                       borderRadius: '8px',
-                      backgroundColor: message.sender === undefined ? '#1976d2' : '#f5f5f5',
-                      color: message.sender === undefined ? '#fff' : '#000',
+                      backgroundColor: lineaChat.emisor === undefined ? '#1976d2' : '#f5f5f5',
+                      color: lineaChat.emisor === undefined ? '#fff' : '#000',
                       maxWidth: '80%',
                       wordWrap: 'break-word',
                     }}
                   >
-                    {message.text}
+                    {lineaChat.mensaje}
                   </Box>
                 </Box>
               ))}
