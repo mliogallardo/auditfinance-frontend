@@ -16,14 +16,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SendIcon from '@mui/icons-material/Send'; // Importa el ícono de avión de papel
 import { toast } from 'react-toastify';
-import { getUserFriendList, getPrivateChat } from '../api'; // Importa desde el archivo index.js
+import { getUserFriendList, getPrivateChat, sendMensaje } from '../api'; // Importa desde el archivo index.js
 import { getErrorMessage } from '../utils/errorUtils';
 
 const Chat = () => {
   const [users, setUsers] = useState([]);
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);//correo
+  const [usuarioInterlocutor, setUsuarioInterlocutor] = useState(null);//objeto con todos los campos de usuario (uuid, correo, nombre, etc)
   const [messagesChat, setMessagesChat] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null); // Referencia al final del contenedor de mensajes
@@ -48,7 +49,9 @@ const Chat = () => {
       setLoading(true);
       const result = await getPrivateChat(usuarioInterlocutor);
       if (result.success) {
-        setMessagesChat(result.data);
+        //usuarioInterlocutor y chat
+        setUsuarioInterlocutor(result.data.usuarioInterlocutor)
+        setMessagesChat(result.data.chat);
       } else {
         const errorMessage = getErrorMessage(result.error);
         toast.error(`Error cargando conversación: ${errorMessage}`);
@@ -80,13 +83,26 @@ const Chat = () => {
     }
   }, [messagesChat]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (newMessage.trim()) {
-      const message = {
+      /*const message = {
         text: newMessage,
-      };
-      setMessagesChat([...messagesChat, message]);
-      setNewMessage('');
+      };*/
+    
+      console.log('Enviando mensaje')
+      const result = await sendMensaje({
+        mailReceptor: selectedUser,
+        mensaje: newMessage,
+      });
+      if (result.success) {
+        const message = result.data.data.mensaje;
+        console.log('se ha enviado el mensaje. campos '+Object.keys(message))
+        setMessagesChat([...messagesChat, message]);
+        setNewMessage('');
+      } else {
+        const errorMessage = getErrorMessage(result.error);
+        toast.error(`Error cargando conversación: ${errorMessage}`);
+      }
     }
   };
 
@@ -196,7 +212,7 @@ const Chat = () => {
                   key={lineaChat.id}
                   sx={{
                     display: 'flex',
-                    justifyContent: lineaChat.emisor === undefined ? 'flex-end' : 'flex-start',
+                    justifyContent: lineaChat.emisorId !== usuarioInterlocutor.id ? 'flex-end' : 'flex-start',
                     marginBottom: '8px',
                     width: '100%',
                   }}
@@ -205,8 +221,8 @@ const Chat = () => {
                     sx={{
                       padding: '8px',
                       borderRadius: '8px',
-                      backgroundColor: lineaChat.emisor === undefined ? '#1976d2' : '#f5f5f5',
-                      color: lineaChat.emisor === undefined ? '#fff' : '#000',
+                      backgroundColor: lineaChat.emisorId !== usuarioInterlocutor.id ? '#1976d2' : '#f5f5f5',
+                      color: lineaChat.emisorId !== usuarioInterlocutor.id ? '#fff' : '#000',
                       maxWidth: '80%',
                       wordWrap: 'break-word',
                     }}
